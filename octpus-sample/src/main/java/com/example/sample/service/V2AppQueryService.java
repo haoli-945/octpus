@@ -1,6 +1,5 @@
 package com.example.sample.service;
 
-import com.octpus.core.annotation.ServiceName;
 import com.octpus.core.annotation.Version;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -10,6 +9,7 @@ import java.util.Objects;
 
 /**
  * V2 版本 - 新增更多字段。
+ * 注意：不需要 @ServiceName，接口已定义。
  */
 @Slf4j
 @Component
@@ -17,7 +17,6 @@ import java.util.Objects;
 public class V2AppQueryService implements AppQueryService {
 
     @Override
-    @ServiceName(interfaceName = "open.alipay.app.query", description = "查询应用信息 V2")
     public Map<String, Object> query(Map<String, Object> request) {
         Objects.requireNonNull(request, "request cannot be null");
         String appId = (String) request.get("appId");
