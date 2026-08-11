@@ -5,6 +5,10 @@ import lombok.Data;
 /**
  * 网关统一请求体。
  *
+ * 支持两种方式：
+ * 1. JSON: { "method": "xxx", "version": "1.0", "data": {...} }
+ * 2. Multipart: form fields 中包含 method, version, data
+ *
  * @author octpus
  * @since 1.0.0
  */

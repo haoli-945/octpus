@@ -5,7 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 /**
- * 网关统一响应体 - 纯 POJO，零外部依赖。
+ * 网关统一响应体。
  *
  * @author octpus
  * @since 1.0.0
