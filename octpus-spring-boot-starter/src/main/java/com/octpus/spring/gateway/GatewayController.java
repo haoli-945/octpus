@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 /**
- * 网关统一入口 - Spring MVC 适配。
+ * 网关统一入口 - 支持版本路由。
  *
  * @author octpus
- * @since 1.0.0
+ * @since 1.1.0
  */
 @Slf4j
 @RestController
@@ -34,14 +34,16 @@ public class GatewayController {
 
         try {
             String method = request.getMethod();
-            log.info("[Octpus] received: method={}, traceId={}", method, traceId);
+            String version = request.getVersion();
+
+            log.info("[Octpus] received: method={}, version={}, traceId={}", method, version, traceId);
 
             if (method == null || method.isBlank()) {
                 throw new OctpusException(OctpusException.ERR_METHOD_MISSING, "method cannot be empty");
             }
 
-            Object result = serviceRouter.route(method, request.getData());
-            log.info("[Octpus] completed: method={}, traceId={}", method, traceId);
+            Object result = serviceRouter.route(method, version, request.getData());
+            log.info("[Octpus] completed: method={}, version={}, traceId={}", method, version, traceId);
             return GatewayResponse.success(result);
 
         } catch (OctpusException e) {

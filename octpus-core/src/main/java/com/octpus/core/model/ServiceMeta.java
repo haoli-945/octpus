@@ -13,9 +13,14 @@ import java.lang.reflect.Method;
 @Data
 @Builder
 public class ServiceMeta {
+    /** 接口名称 */
     private String interfaceName;
+    /** 版本号 */
     private String version;
+    /** 接口描述 */
     private String description;
+    /** 目标 Bean */
     private Object bean;
+    /** 目标方法 */
     private Method method;
 }

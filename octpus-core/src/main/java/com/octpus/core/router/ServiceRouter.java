@@ -11,10 +11,10 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * 服务路由器 - 核心组件，零外部依赖。
+ * 服务路由器 - 支持版本路由。
  *
  * @author octpus
- * @since 1.0.0
+ * @since 1.1.0
  */
 public class ServiceRouter {
 
@@ -27,11 +27,13 @@ public class ServiceRouter {
         this.paramConverter = paramConverter;
     }
 
-    public Object route(String interfaceName, Object data) {
-        ServiceMeta meta = serviceRegistry.lookup(interfaceName);
+    public Object route(String interfaceName, String version, Object data) {
+        ServiceMeta meta = serviceRegistry.lookup(interfaceName, version);
         if (meta == null) {
-            throw new OctpusException(OctpusException.ERR_METHOD_NOT_FOUND,
-                    "interface not found: " + interfaceName);
+            throw new OctpusException(
+                    OctpusException.ERR_METHOD_NOT_FOUND,
+                    "interface not found: " + interfaceName + " (version: " + version + ")"
+            );
         }
 
         try {
@@ -40,19 +42,24 @@ public class ServiceRouter {
             throw e;
         } catch (Exception e) {
             log.log(Level.SEVERE, "[Octpus] invoke failed: " + interfaceName, e);
-            throw new OctpusException(OctpusException.ERR_INVOKE_FAILED,
-                    "invoke failed: " + e.getMessage(), e);
+            throw new OctpusException(
+                    OctpusException.ERR_INVOKE_FAILED,
+                    "invoke failed: " + e.getMessage(),
+                    e
+            );
         }
+    }
+
+    public Object route(String interfaceName, Object data) {
+        return route(interfaceName, null, data);
     }
 
     private Object invoke(ServiceMeta meta, Object data) throws Exception {
         Method method = meta.getMethod();
         Parameter[] params = method.getParameters();
-
         if (params.length == 0) {
             return method.invoke(meta.getBean());
         }
-
         Class<?> paramType = params[0].getType();
         Object convertedData = paramConverter.convert(data, paramType);
         return method.invoke(meta.getBean(), convertedData);
