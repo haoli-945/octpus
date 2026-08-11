@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.octpus.spring.config.OctpusCoreConfiguration,\
+  com.octpus.spring.config.OctpusScanConfiguration

@@ -1,0 +1,2 @@
+com.octpus.spring.config.OctpusCoreConfiguration
+com.octpus.spring.config.OctpusScanConfiguration
