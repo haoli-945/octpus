@@ -11,16 +11,15 @@ import org.springframework.context.annotation.Configuration;
 import java.lang.reflect.Method;
 
 /**
- * 服务方法扫描 - 支持 @ServiceName + @Version。
+ * 服务方法扫描 - 支持接口级 @ServiceName + 实现类 @Version。
  *
  * 扫描策略：
- * 1. 扫描所有 Bean 中带 @ServiceName 的方法
- * 2. 检查 Bean 类上是否有 @Version 注解
- * 3. 如果有 @Version，使用指定版本号
- * 4. 如果没有 @Version，使用默认版本 "1.0"
+ * 1. 扫描 Bean 实现的接口，查找带 @ServiceName 的方法
+ * 2. 检查实现类上是否有 @Version 注解
+ * 3. 注册：interfaceName（来自接口）+ version（来自实现类）
  *
- * @author haoli.xu
- * @since 1.1.0
+ * @author octpus
+ * @since 1.2.0
  */
 @Slf4j
 @Configuration
@@ -52,33 +51,61 @@ public class OctpusScanConfiguration implements InitializingBean {
                 targetClass = targetClass.getSuperclass();
             }
 
-            // 获取 @Version 注解（如果有）
+            // 获取 @Version
             String version = "1.0";
             Version versionAnnotation = targetClass.getAnnotation(Version.class);
             if (versionAnnotation != null) {
                 version = versionAnnotation.value();
             }
 
-            // 扫描 @ServiceName 方法
-            for (Method method : targetClass.getDeclaredMethods()) {
+            // 扫描接口中的 @ServiceName 方法
+            count += scanInterfaces(targetClass, bean, version);
+
+            // 兼容：扫描类自身的 @ServiceName 方法
+            count += scanDeclaredMethods(targetClass, bean, version);
+        }
+
+        log.info("[Octpus] {} service(s) registered", count);
+    }
+
+    /**
+     * 扫描接口中的 @ServiceName 方法。
+     */
+    private int scanInterfaces(Class<?> targetClass, Object bean, String version) {
+        int count = 0;
+        for (Class<?> iface : targetClass.getInterfaces()) {
+            // 跳过 Spring 和 JDK 内置接口
+            if (iface.getName().startsWith("org.springframework.") ||
+                iface.getName().startsWith("java.")) {
+                continue;
+            }
+
+            for (Method method : iface.getDeclaredMethods()) {
                 ServiceName annotation = method.getAnnotation(ServiceName.class);
                 if (annotation == null) continue;
 
                 method.setAccessible(true);
-
-                // 使用注解中的 version（如果指定），否则使用类上的 @Version
-                String finalVersion = annotation.version().equals("1.0") ? version : annotation.version();
-
-                serviceRegistry.register(
-                        annotation.interfaceName(),
-                        finalVersion,
-                        bean,
-                        method
-                );
+                serviceRegistry.register(annotation.interfaceName(), version, bean, method);
                 count++;
             }
         }
+        return count;
+    }
 
-        log.info("[Octpus] {} service(s) registered", count);
+    /**
+     * 扫描类自身的 @ServiceName 方法（兼容旧用法）。
+     */
+    private int scanDeclaredMethods(Class<?> targetClass, Object bean, String version) {
+        int count = 0;
+        for (Method method : targetClass.getDeclaredMethods()) {
+            ServiceName annotation = method.getAnnotation(ServiceName.class);
+            if (annotation == null) continue;
+
+            method.setAccessible(true);
+            String finalVersion = annotation.version().equals("1.0") ? version : annotation.version();
+            serviceRegistry.register(annotation.interfaceName(), finalVersion, bean, method);
+            count++;
+        }
+        return count;
     }
 }
