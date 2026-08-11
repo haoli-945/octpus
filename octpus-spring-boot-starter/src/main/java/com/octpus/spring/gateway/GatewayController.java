@@ -33,17 +33,17 @@ public class GatewayController {
         MDC.put(TRACE_ID_KEY, traceId);
 
         try {
-            String method = request.getMethod();
+            String serviceName = request.getServiceName();
             String version = request.getVersion();
 
-            log.info("[Octpus] received: method={}, version={}, traceId={}", method, version, traceId);
+            log.info("[Octpus] received: serviceName={}, version={}, traceId={}", serviceName, version, traceId);
 
-            if (method == null || method.isBlank()) {
-                throw new OctpusException(OctpusException.ERR_METHOD_MISSING, "method cannot be empty");
+            if (serviceName == null || serviceName.isBlank()) {
+                throw new OctpusException(OctpusException.ERR_METHOD_MISSING, "serviceName cannot be empty");
             }
 
-            Object result = serviceRouter.route(method, version, request.getData());
-            log.info("[Octpus] completed: method={}, version={}, traceId={}", method, version, traceId);
+            Object result = serviceRouter.route(serviceName, version, request.getData());
+            log.info("[Octpus] completed: serviceName={}, version={}, traceId={}", serviceName, version, traceId);
             return GatewayResponse.success(result);
 
         } catch (OctpusException e) {

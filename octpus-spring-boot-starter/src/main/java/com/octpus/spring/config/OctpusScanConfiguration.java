@@ -12,7 +12,7 @@ import java.lang.reflect.Method;
 
 /**
  * 服务方法扫描 - 支持接口级 @ServiceName + 实现类 @Version。
- *
+ * <p>
  * 扫描策略：
  * 1. 扫描 Bean 实现的接口，查找带 @ServiceName 的方法
  * 2. 检查实现类上是否有 @Version 注解
