@@ -11,10 +11,10 @@ import org.springframework.web.bind.annotation.*;
 import java.util.UUID;
 
 /**
- * 网关统一入口 - 支持版本路由。
+ * 网关统一入口。
  *
- * @author haoli.xu
- * @since 1.1.0
+ * @author octpus
+ * @since 1.2.0
  */
 @Slf4j
 @RestController
@@ -33,17 +33,21 @@ public class GatewayController {
         MDC.put(TRACE_ID_KEY, traceId);
 
         try {
-            String serviceName = request.getServiceName();
+            String method = request.getMethod();
             String version = request.getVersion();
 
-            log.info("[Octpus] received: serviceName={}, version={}, traceId={}", serviceName, version, traceId);
+            log.info("[Octpus] received: method={}, version={}, traceId={}", method, version, traceId);
 
-            if (serviceName == null || serviceName.isBlank()) {
-                throw new OctpusException(OctpusException.ERR_METHOD_MISSING, "serviceName cannot be empty");
+            if (method == null || method.isBlank()) {
+                throw new OctpusException(OctpusException.ERR_METHOD_MISSING, "method cannot be empty");
             }
 
-            Object result = serviceRouter.route(serviceName, version, request.getData());
-            log.info("[Octpus] completed: serviceName={}, version={}, traceId={}", serviceName, version, traceId);
+            Object result = serviceRouter.route(method, version, request.getData());
+
+            // 如果方法返回的是 GatewayResponse，直接返回；否则包装
+            if (result instanceof GatewayResponse) {
+                return (GatewayResponse<?>) result;
+            }
             return GatewayResponse.success(result);
 
         } catch (OctpusException e) {
