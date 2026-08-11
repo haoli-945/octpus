@@ -5,7 +5,7 @@ import lombok.Getter;
 /**
  * 八爪鱼统一异常。
  *
- * @author octpus
+ * @author haoli.xu
  * @since 1.0.0
  */
 @Getter

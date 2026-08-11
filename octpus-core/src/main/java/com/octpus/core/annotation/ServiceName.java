@@ -5,7 +5,7 @@ import java.lang.annotation.*;
 /**
  * 服务名称注解 - 标记一个方法为八爪鱼网关可路由的接口。
  *
- * @author octpus
+ * @author haoli.xu
  * @since 1.0.0
  */
 @Target(ElementType.METHOD)

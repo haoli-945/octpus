@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 /**
  * 网关统一响应体 - 纯 POJO，零外部依赖。
  *
- * @author octpus
+ * @author haoli.xu
  * @since 1.0.0
  */
 @Data

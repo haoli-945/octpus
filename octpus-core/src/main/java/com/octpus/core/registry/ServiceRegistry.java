@@ -11,7 +11,7 @@ import java.util.logging.Logger;
 /**
  * 服务注册表 - 支持同接口多版本路由。
  *
- * @author octpus
+ * @author haoli.xu
  * @since 1.1.0
  */
 public class ServiceRegistry {

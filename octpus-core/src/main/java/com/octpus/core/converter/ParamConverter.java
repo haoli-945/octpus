@@ -8,7 +8,7 @@ package com.octpus.core.converter;
  * - Spring 适配器用 Jackson 实现
  * - 未来可扩展 Gson/Fastjson2 实现
  *
- * @author octpus
+ * @author haoli.xu
  * @since 1.0.0
  */
 public interface ParamConverter {

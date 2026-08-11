@@ -5,7 +5,7 @@ import lombok.Data;
 /**
  * 网关统一请求体。
  *
- * @author octpus
+ * @author haoli.xu
  * @since 1.0.0
  */
 @Data

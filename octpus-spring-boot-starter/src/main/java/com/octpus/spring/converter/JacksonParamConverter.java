@@ -6,7 +6,7 @@ import com.octpus.core.converter.ParamConverter;
 /**
  * 基于 Jackson 的参数转换器实现。
  *
- * @author octpus
+ * @author haoli.xu
  * @since 1.0.0
  */
 public class JacksonParamConverter implements ParamConverter {

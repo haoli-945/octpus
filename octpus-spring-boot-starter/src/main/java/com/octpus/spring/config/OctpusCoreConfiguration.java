@@ -13,7 +13,7 @@ import org.springframework.context.annotation.Configuration;
 /**
  * 核心组件装配。
  *
- * @author octpus
+ * @author haoli.xu
  * @since 1.0.0
  */
 @Configuration

@@ -4,7 +4,7 @@ import java.lang.annotation.*;
 
 /**
  * 版本注解 - 标记实现类的版本号，用于同接口多版本路由。
- *
+ * <p>
  * 使用示例：
  * <pre>
  * {@literal @}Component
@@ -21,7 +21,7 @@ import java.lang.annotation.*;
  * - 前端传 version="2.0" → 路由到 V2AppQueryService
  * - 前端不传 version → 路由到默认版本（1.0）
  *
- * @author octpus
+ * @author haoli.xu
  * @since 1.1.0
  */
 @Target(ElementType.TYPE)
