@@ -1,6 +1,7 @@
 package com.octpus.spring.gateway;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
 import com.octpus.core.exception.OctpusException;
 import com.octpus.core.model.GatewayRequest;
 import com.octpus.core.model.GatewayResponse;
@@ -45,19 +46,19 @@ public class GatewayController {
             if (contentType != null && contentType.contains("multipart/")) {
                 gatewayRequest = parseMultipartRequest((MultipartHttpServletRequest) request);
                 log.info("[Octpus] received (multipart): method={}, traceId={}",
-                        gatewayRequest.getMethod(), traceId);
+                        gatewayRequest.getServiceName(), traceId);
             } else {
                 gatewayRequest = parseJsonRequest(request);
                 log.info("[Octpus] received (json): method={}, version={}, traceId={}",
-                        gatewayRequest.getMethod(), gatewayRequest.getVersion(), traceId);
+                        gatewayRequest.getServiceName(), gatewayRequest.getVersion(), traceId);
             }
 
-            if (gatewayRequest.getMethod() == null || gatewayRequest.getMethod().isBlank()) {
+            if (gatewayRequest.getServiceName() == null || gatewayRequest.getServiceName().isBlank()) {
                 throw new OctpusException(OctpusException.ERR_METHOD_MISSING, "method cannot be empty");
             }
 
             Object result = serviceRouter.route(
-                    gatewayRequest.getMethod(),
+                    gatewayRequest.getServiceName(),
                     gatewayRequest.getVersion(),
                     gatewayRequest.getData()
             );
@@ -79,13 +80,18 @@ public class GatewayController {
     }
 
     private GatewayRequest parseJsonRequest(HttpServletRequest request) throws Exception {
-        return objectMapper.readValue(request.getInputStream(), GatewayRequest.class);
+        try {
+            return objectMapper.readValue(request.getInputStream(), GatewayRequest.class);
+        }catch (UnrecognizedPropertyException e) {
+
+        }
+
     }
 
     @SuppressWarnings("unchecked")
     private GatewayRequest parseMultipartRequest(MultipartHttpServletRequest request) {
         GatewayRequest gatewayRequest = new GatewayRequest();
-        gatewayRequest.setMethod(request.getParameter("method"));
+        gatewayRequest.setServiceName(request.getParameter("serviceName"));
         gatewayRequest.setVersion(request.getParameter("version"));
 
         // 提取所有文件（支持同名字段多文件）
