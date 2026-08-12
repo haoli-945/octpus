@@ -1,5 +1,6 @@
 package com.octpus.spring.gateway;
 
+import com.fasterxml.jackson.databind.DatabindException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.octpus.core.exception.OctpusErrorCode;
 import com.octpus.core.exception.OctpusException;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -80,8 +82,14 @@ public class GatewayController {
         }
     }
 
-    private GatewayRequest parseJsonRequest(HttpServletRequest request) throws Exception {
-        return objectMapper.readValue(request.getInputStream(), GatewayRequest.class);
+    private GatewayRequest parseJsonRequest(HttpServletRequest request)  {
+        try {
+            return objectMapper.readValue(request.getInputStream(), GatewayRequest.class);
+        }catch (DatabindException de){
+            throw new OctpusException(OctpusErrorCode.PARAM_PARSE, de.getMessage());
+        } catch (IOException e) {
+            throw new OctpusException(OctpusErrorCode.INTERNAL_SYSTEM_ERROR,e.getMessage());
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -137,7 +145,7 @@ public class GatewayController {
     @ExceptionHandler(OctpusException.class)
     @ResponseStatus
     public GatewayResponse<?> handleException(OctpusException e) {
-        return GatewayResponse.fail(e.getCode(), e.getDesc());
+        return GatewayResponse.fail(e.getCode(), String.format(e.getDesc()));
     }
 
     @ExceptionHandler(Exception.class)

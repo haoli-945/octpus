@@ -1,6 +1,7 @@
 package com.example.sample.model;
 
 import lombok.Data;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 应用查询请求参数 - 接入方自定义。
@@ -22,4 +23,5 @@ public class AppQueryRequest {
     private Long createTimestamp;
     private Double balance;
     private Boolean enabled;
+    private MultipartFile[] multipartFiles;
 }

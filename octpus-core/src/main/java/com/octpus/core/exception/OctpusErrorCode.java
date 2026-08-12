@@ -26,6 +26,9 @@ public enum OctpusErrorCode {
     /** 服务调用失败 */
     INVOKE_FAILED("100004", "服务调用失败"),
 
+    /** 内部系统异常 */
+    INTERNAL_SYSTEM_ERROR("100005","内部系统异常"),
+
     ;
 
     /** 对外返回的错误码 */
