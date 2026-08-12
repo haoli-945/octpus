@@ -1,7 +1,7 @@
 package com.octpus.spring.gateway;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException;
+import com.octpus.core.exception.OctpusErrorCode;
 import com.octpus.core.exception.OctpusException;
 import com.octpus.core.model.GatewayRequest;
 import com.octpus.core.model.GatewayResponse;
@@ -54,7 +54,7 @@ public class GatewayController {
             }
 
             if (gatewayRequest.getServiceName() == null || gatewayRequest.getServiceName().isBlank()) {
-                throw new OctpusException(OctpusException.ERR_METHOD_MISSING, "method cannot be empty");
+                throw new OctpusException(OctpusErrorCode.METHOD_MISSING);
             }
 
             Object result = serviceRouter.route(
@@ -69,23 +69,19 @@ public class GatewayController {
             return GatewayResponse.success(result);
 
         } catch (OctpusException e) {
-            log.warn("[Octpus] error: code={}, message={}, traceId={}", e.getCode(), e.getMessage(), traceId);
+            log.warn("[Octpus] error: code={}, desc={}, message={}, traceId={}",
+                    e.getCode(), e.getDesc(), e.getMessage(), traceId);
             throw e;
         } catch (Exception e) {
             log.error("[Octpus] system error: traceId={}", traceId, e);
-            throw new OctpusException(OctpusException.ERR_INVOKE_FAILED, "system error: " + e.getMessage(), e);
+            throw new OctpusException(OctpusErrorCode.INVOKE_FAILED, "system error: " + e.getMessage(), e);
         } finally {
             MDC.remove(TRACE_ID_KEY);
         }
     }
 
     private GatewayRequest parseJsonRequest(HttpServletRequest request) throws Exception {
-        try {
-            return objectMapper.readValue(request.getInputStream(), GatewayRequest.class);
-        }catch (UnrecognizedPropertyException e) {
-
-        }
-
+        return objectMapper.readValue(request.getInputStream(), GatewayRequest.class);
     }
 
     @SuppressWarnings("unchecked")
@@ -127,7 +123,7 @@ public class GatewayController {
                     gatewayRequest.setData(dataObj);
                 }
             } catch (Exception e) {
-                throw new OctpusException(OctpusException.ERR_PARAM_PARSE, "failed to parse data: " + e.getMessage());
+                throw new OctpusException(OctpusErrorCode.PARAM_PARSE, "data解析失败: " + e.getMessage());
             }
         } else if (files.length > 0) {
             Map<String, Object> wrapper = new HashMap<>();
@@ -141,7 +137,7 @@ public class GatewayController {
     @ExceptionHandler(OctpusException.class)
     @ResponseStatus
     public GatewayResponse<?> handleException(OctpusException e) {
-        return GatewayResponse.fail(e.getCode(), e.getMessage());
+        return GatewayResponse.fail(e.getCode(), e.getDesc());
     }
 
     @ExceptionHandler(Exception.class)

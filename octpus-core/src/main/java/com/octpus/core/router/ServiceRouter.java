@@ -1,6 +1,7 @@
 package com.octpus.core.router;
 
 import com.octpus.core.converter.ParamConverter;
+import com.octpus.core.exception.OctpusErrorCode;
 import com.octpus.core.exception.OctpusException;
 import com.octpus.core.model.ServiceMeta;
 import com.octpus.core.registry.ServiceRegistry;
@@ -32,7 +33,7 @@ public class ServiceRouter {
         ServiceMeta meta = serviceRegistry.lookup(interfaceName, version);
         if (meta == null) {
             throw new OctpusException(
-                    OctpusException.ERR_METHOD_NOT_FOUND,
+                    OctpusErrorCode.METHOD_NOT_FOUND,
                     "interface not found: " + interfaceName + " (version: " + version + ")"
             );
         }
@@ -44,7 +45,7 @@ public class ServiceRouter {
         } catch (Exception e) {
             log.log(Level.SEVERE, "[Octpus] invoke failed: " + interfaceName, e);
             throw new OctpusException(
-                    OctpusException.ERR_INVOKE_FAILED,
+                    OctpusErrorCode.INVOKE_FAILED,
                     "invoke failed: " + e.getMessage(),
                     e
             );
@@ -102,7 +103,7 @@ public class ServiceRouter {
                 try {
                     field.set(target, files);
                 } catch (IllegalAccessException e) {
-                    throw new OctpusException(OctpusException.ERR_INVOKE_FAILED,
+                    throw new OctpusException(OctpusErrorCode.INVOKE_FAILED,
                             "failed to inject files: " + e.getMessage());
                 }
                 return;
